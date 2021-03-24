@@ -278,16 +278,26 @@ class TestGemPlatform < Gem::TestCase
     x86_linux_musl = Gem::Platform.new 'i686-linux-musl'
     x86_linux_uclibc = Gem::Platform.new 'i686-linux-uclibc'
 
-    assert((x86_linux === x86_linux_gnu), 'linux =~ linux-gnu')
-    assert((x86_linux_gnu === x86_linux), 'linux-gnu =~ linux')
-    assert(!(x86_linux_gnu === x86_linux_musl), 'linux-gnu =~ linux-musl')
-    assert(!(x86_linux_musl === x86_linux_gnu), 'linux-musl =~ linux-gnu')
-    assert(!(x86_linux_uclibc === x86_linux_musl), 'linux-uclibc =~ linux-musl')
-    assert(!(x86_linux_musl === x86_linux_uclibc), 'linux-musl =~ linux-uclibc')
-    assert(!(x86_linux === x86_linux_musl), 'linux =~ linux-musl')
-    assert(!(x86_linux_musl === x86_linux), 'linux-musl =~ linux')
-    assert(!(x86_linux === x86_linux_uclibc), 'linux =~ linux-uclibc')
-    assert(!(x86_linux_uclibc === x86_linux), 'linux-uclibc =~ linux')
+    # a naked linux runtime is implicit gnu, as it represents the common glibc-linked runtime
+    assert(x86_linux === x86_linux_gnu, 'linux =~ linux-gnu')
+    assert(x86_linux_gnu === x86_linux, 'linux-gnu =~ linux')
+
+    # musl and explicit gnu should differ
+    # refute(x86_linux_gnu === x86_linux_musl, 'linux-gnu =~ linux-musl')
+    # refute(x86_linux_musl === x86_linux_gnu, 'linux-musl =~ linux-gnu')
+
+    # explicit libc differ
+    refute(x86_linux_uclibc === x86_linux_musl, 'linux-uclibc =~ linux-musl')
+    refute(x86_linux_musl === x86_linux_uclibc, 'linux-musl =~ linux-uclibc')
+
+    # musl host runtime accepts libc-generic or statically linked gems...
+    assert(x86_linux === x86_linux_musl, 'linux =~ linux-musl')
+    # ...but implicit gnu runtime generally does not accept musl-specific gems
+    refute(x86_linux_musl === x86_linux, 'linux-musl =~ linux')
+
+    # other libc are not glibc compatible
+    # refute(x86_linux === x86_linux_uclibc, 'linux =~ linux-uclibc')
+    refute(x86_linux_uclibc === x86_linux, 'linux-uclibc =~ linux')
   end
 
   def test_equals3_cpu_arm

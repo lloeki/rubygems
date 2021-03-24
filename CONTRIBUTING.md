@@ -42,8 +42,8 @@ To run commands like `gem install` from the repo:
 To run bundler test:
 
     $ cd bundler
-    $ bin/rake spec:deps
-    $ bin/rspec spec
+    $ RUBYOPT='-I../lib' bin/rake spec:deps
+    $ RUBYOPT='-I../lib' bin/rspec spec
 
 ## Issues
 
